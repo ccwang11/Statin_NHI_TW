@@ -1,0 +1,170 @@
+[
+  {
+    "id": "extreme_recent_mi_and_diabetes",
+    "description": "一年內心肌梗塞及糖尿病，應列極高風險。",
+    "patient": {
+      "ldl_c": 80,
+      "total_cholesterol": 170,
+      "hdl_c": 45,
+      "recent_mi_within_1y": true,
+      "diabetes": true
+    },
+    "expected": {
+      "risk_category": "extreme",
+      "matched_contains": ["一年內曾經歷心肌梗塞", "急性冠心症合併糖尿病"],
+      "output_contains": ["ASCVD 風險等級：極高風險", "主要/次要血脂目標值：LDL-C < 55"]
+    }
+  },
+  {
+    "id": "extreme_pad_and_carotid",
+    "description": "周邊動脈疾病合併頸動脈狹窄，應列極高風險。",
+    "patient": {
+      "ldl_c": 80,
+      "peripheral_arterial_disease": true,
+      "carotid_stenosis": true
+    },
+    "expected": {
+      "risk_category": "extreme",
+      "matched_contains": ["周邊動脈疾病合併頸動脈狹窄"]
+    }
+  },
+  {
+    "id": "very_high_stroke_with_carotid",
+    "description": "缺血性中風合併頸動脈狹窄，應列非常高風險。",
+    "patient": {
+      "ldl_c": 75,
+      "ischemic_stroke_tia": true,
+      "carotid_stenosis": true
+    },
+    "expected": {
+      "risk_category": "very_high",
+      "matched_contains": ["缺血性中風／短暫性腦缺血發作合併動脈硬化相關疾病或病史"]
+    }
+  },
+  {
+    "id": "high_ldl_190",
+    "description": "LDL-C >= 190，應列高風險。",
+    "patient": {
+      "ldl_c": 195,
+      "total_cholesterol": 250,
+      "hdl_c": 50
+    },
+    "expected": {
+      "risk_category": "high",
+      "matched_contains": ["LDL-C >= 190"],
+      "output_contains": ["主要/次要血脂目標值：LDL-C < 100"]
+    }
+  },
+  {
+    "id": "moderate_two_risk_factors",
+    "description": "高血壓加女性年齡 55 歲，應列中風險。",
+    "patient": {
+      "sex": "female",
+      "age": 55,
+      "ldl_c": 139,
+      "hypertension": true
+    },
+    "expected": {
+      "risk_category": "moderate",
+      "matched_contains": ["高血壓", "女性 >= 55 歲"],
+      "output_contains": ["LDL-C 高於或等於起始藥物治療血脂值（139 / 115）"]
+    }
+  },
+  {
+    "id": "low_single_hypertension",
+    "description": "只有高血壓一項危險因子，應列低風險。",
+    "patient": {
+      "sex": "male",
+      "age": 40,
+      "ldl_c": 100,
+      "hypertension": true
+    },
+    "expected": {
+      "risk_category": "low",
+      "matched_contains": ["高血壓"],
+      "output_absent": ["非藥物治療：", "追蹤時程："]
+    }
+  },
+  {
+    "id": "minimal_no_risk_factors",
+    "description": "六項危險因子皆不符合，應列零風險因子。",
+    "patient": {
+      "sex": "male",
+      "age": 40,
+      "ldl_c": 150,
+      "waist_cm": 80,
+      "systolic_bp": 120,
+      "diastolic_bp": 75,
+      "fasting_glucose": 90,
+      "triglycerides": 100,
+      "hdl_c": 45
+    },
+    "expected": {
+      "risk_category": "minimal",
+      "output_contains": ["ASCVD 風險等級：零風險因子"],
+      "output_absent": ["ASCVD 風險等級：零風險因子（", "非藥物治療："]
+    }
+  },
+  {
+    "id": "treated_patient_keeps_targets",
+    "description": "使用 Crestor 治療中，略過起始治療與非藥物治療，但保留目標及追蹤。",
+    "note": "Current medications: Crestor 10 mg daily",
+    "expected_extracted": {
+      "on_lipid_lowering_medication": true,
+      "on_statin_medication": true
+    },
+    "patient": {
+      "sex": "male",
+      "age": 40,
+      "ldl_c": 90,
+      "total_cholesterol": 145,
+      "hdl_c": 45,
+      "hypertension": true,
+      "on_lipid_lowering_medication": true,
+      "on_statin_medication": true
+    },
+    "expected": {
+      "risk_category": "low",
+      "output_contains": ["主要/次要血脂目標值：LDL-C < 130 (已達標)", "追蹤時程："],
+      "output_absent": ["起始藥物治療血脂值", "非藥物治療："]
+    }
+  },
+  {
+    "id": "pure_tg_medication_not_cholesterol_treatment",
+    "description": "Fenolip-U 是純降 TG 藥，不應視為降膽固醇治療。",
+    "note": "Fenolip-U 160 mg daily",
+    "expected_extracted": {
+      "on_tg_medication": true
+    },
+    "expected_absent_extracted": ["on_lipid_lowering_medication"],
+    "patient": {
+      "sex": "male",
+      "age": 40,
+      "ldl_c": 100,
+      "hypertension": true
+    },
+    "expected": {
+      "risk_category": "low"
+    }
+  },
+  {
+    "id": "hemorrhagic_stroke_excluded",
+    "description": "明確出血性中風不可自動算缺血性中風。",
+    "note": "History of hemorrhagic stroke",
+    "expected_absent_extracted": ["ischemic_stroke_tia"],
+    "patient": {
+      "sex": "male",
+      "age": 40,
+      "ldl_c": 150,
+      "waist_cm": 80,
+      "systolic_bp": 120,
+      "diastolic_bp": 75,
+      "fasting_glucose": 90,
+      "triglycerides": 100,
+      "hdl_c": 45
+    },
+    "expected": {
+      "risk_category": "minimal"
+    }
+  }
+]

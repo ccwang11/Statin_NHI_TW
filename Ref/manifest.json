@@ -1,0 +1,38 @@
+{
+  "reviewed_on": "2026-11-08",
+  "attachments": [
+    {
+      "file": "附件2_藥品給付規定修訂對照表.pdf",
+      "sha256": "6389a5f654e0cb755d006f04ed47eca6ada9f867873f43c5088f79db6bb6c1c2",
+      "source": "衛生福利部中央健康保險署",
+      "source_url": null,
+      "notice_url": null,
+      "notice_number": null,
+      "effective_date": "2026-09-01",
+      "downloaded_at": null,
+      "provenance_note": "Original acquisition time not recorded; this is a repository snapshot."
+    },
+    {
+      "file": "附件1-全民健康保險藥品已收載項目異動明細表.pdf",
+      "sha256": "fafaae478dc8e188674c3585d65ef7d480c767fee8f5daa7b8b05458f6b6fe81",
+      "source": "衛生福利部中央健康保險署",
+      "source_url": null,
+      "notice_url": null,
+      "notice_number": null,
+      "effective_date": "2026-09-01",
+      "downloaded_at": null,
+      "provenance_note": "Original acquisition time not recorded; this is a repository snapshot."
+    },
+    {
+      "file": "附件2_藥品給付規定修訂對照表 20261029.pdf",
+      "sha256": "86907862c0a990482ac3d0dda18f3281f6820f266dfd4fd8ccaca1dc46c3d9e2",
+      "source": "衛生福利部中央健康保險署",
+      "source_url": "https://www.nhi.gov.tw/ch/dl-103688-cb3cda4e3dad4851a3c186dfa11bf113-1.pdf",
+      "notice_url": "https://www.nhi.gov.tw/ch/cp-20681-3808b-3258-1.html",
+      "notice_number": "1150672925",
+      "effective_date": "2026-12-01",
+      "downloaded_at": null,
+      "provenance_note": "Original acquisition time not recorded; this is a repository snapshot."
+    }
+  ]
+}

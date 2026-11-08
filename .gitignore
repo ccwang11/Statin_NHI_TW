@@ -1,0 +1,36 @@
+# Python and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Rebuildable binaries and local runtime
+build/
+dist/
+.tk-runtime/
+*.spec
+!Statin_NHI.spec
+
+# Local hospital settings and per-installation preferences
+Statin_NHI_available.json
+Statin_NHI_available.tmp
+Statin_NHI_reminders.json
+Statin_NHI_reminders.tmp
+
+# Credentials and private material
+*.pem
+*.key
+*.pfx
+*.p12
+/private/
+/work/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

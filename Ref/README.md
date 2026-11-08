@@ -4,5 +4,5 @@
 
 - CSV 有 63 項，`effective_date` 控制納入本程式新制清單的日期。
 - PDF 是歷史快照，不能直接當成今日完整規定。
-- `manifest.json` 記錄附件雜湊及已知來源；未知原始網址明列 `null`，不自行推測。
+- `manifest.json` 記錄附件雜湊、官方公告及下載網址；三份 PDF 均已重新下載並確認雜湊一致。`verified_on` 記錄核對日期，原始取得時間未知的 `downloaded_at` 保留 `null`。
 - 個別院所使用的 `Statin_NHI_available.json` 不應放入本目錄或提交 Git。

@@ -78,7 +78,39 @@ def run_smoke(report_path: Path) -> None:
             assert saved["dismissed_updates"][REIMBURSEMENT_UPDATE_ID] is True
             assert saved["medication_codes"] == ["BC24131100", "BC25350100", "AC62140100"]
             assert not settings.with_name(REMINDER_FILENAME).exists()
-            report.update(ok=True, checks=["catalog bundled", "date columns", "dialog bounds", "any-code suppression", "six-code reminder", "persistent dismissal"])
+            # Synthetic evidence exercises the visible review and clipboard flow.
+            app.clear_all()
+            for name, value in {"sex": "male", "age": "50", "ldl_c": "170",
+                                "egfr_date_1": "2026-01-01", "egfr_value_1": "40"}.items():
+                app.field_vars[name].set(value)
+            app.evaluate_patient()
+            root.update()
+            app.copy_result_summary()
+            summary = root.clipboard_get()
+            assert "暫定分級，需人工複核" in summary
+            assert "eGFR 第2次數值" in summary
+            assert "院內新制可用藥物" not in summary
+            app.field_vars["ldl_c"].set("inf")
+            with patch("statin_nhi.ui.messagebox.showwarning") as warning:
+                app.evaluate_patient()
+                warning.assert_called_once()
+            assert "尚未判讀" in app.result_text.get("1.0", "end")
+            assert "ASCVD 風險等級" not in app.result_text.get("1.0", "end")
+
+            # A complete synthetic example for documentation; no hospital defaults.
+            app.clear_all()
+            app.note_text.insert("1.0", "人工範例，非真實病歷：50 歲男性，周邊動脈疾病合併頸動脈狹窄。\nLDL-C 80、TC 160、HDL-C 40 mg/dL。")
+            for name, value in {"sex": "male", "age": "50", "ldl_c": "80",
+                                "total_cholesterol": "160", "hdl_c": "40",
+                                "peripheral_arterial_disease": True, "carotid_stenosis": True}.items():
+                app.field_vars[name].set(value)
+            app.evaluate_patient()
+            root.update()
+            assert "極高風險" in app.result_text.get("1.0", "end")
+            x, y = root.winfo_rootx(), root.winfo_rooty()
+            ImageGrab.grab(bbox=(x, y, x + root.winfo_width(), y + root.winfo_height())).save(
+                report_path.with_name(report_path.stem + "-example.png"))
+            report.update(ok=True, checks=["catalog bundled", "date columns", "dialog bounds", "any-code suppression", "six-code reminder", "persistent dismissal", "review summary clipboard", "invalid input stops evaluation", "synthetic example"])
     except Exception as error:
         report["error"] = repr(error)
         raise

@@ -1,5 +1,7 @@
 # 架構與資料流
 
+對應原始碼版本：v1.2.4；更新日期：2026-11-09。
+
 ## 模組
 
 | 模組 | 責任 |
@@ -20,16 +22,25 @@
 flowchart LR
     A[輸入文字或表單] --> B[parser 候選欄位]
     B --> C[使用者確認與修正]
-    C --> D[PatientData]
+    C --> V{數值與血壓格式有效}
+    V -->|是| D[PatientData]
+    V -->|否| X[清除舊結果並提示欄位錯誤]
     D --> E[規則與 FH 評分]
     F[CSV 藥物主檔] --> G[院內代碼交集與日期篩選]
     H[本機 JSON] --> G
-    E --> I[結果畫面]
+    E --> R[分級、待補欄位與規則提醒]
+    R --> I[結果畫面]
     G --> I
     I --> J[使用者複製摘要]
 ```
 
 parser 結果不能視為確診。`evaluate_all()` 現在僅回傳新制規則結果；舊設計草稿的 TG／舊制輸出未啟用。藥物清單只與院內設定及日期比對，不是完整個別用藥給付引擎。
+
+### 輸入驗證與複核狀態
+
+`ui.py` 的 `parse_nonnegative_number()` 只接受空白或有限且不小於零的數字。動態欄位更新將無效數值視為缺漏，避免輸入過程中拋出錯誤；按「判定」時，`build_patient_data()` 先呼叫 `_validate_numeric_inputs()`，逐項核對 `NUMERIC_LABELS` 所列欄位及血壓格式。驗證失敗會在 `evaluate_patient()` 顯示錯誤並清除舊結果，不進入規則判讀。這不驗證完整生理範圍或資料單位。
+
+`RuleOutcome.status` 為 `needs_review` 時，結果分級加註「暫定分級，需人工複核」。`missing_fields` 與 `follow_up_notes` 一律顯示在 `OUTPUT_DIVIDER` 之前；`copy_result_summary()` 因此保留待補資料與判讀提醒。分隔線後的院內藥品及追蹤時程不複製。風險分級及給付門檻仍由 `rules.py` 負責。
 
 ## 檔案位置
 

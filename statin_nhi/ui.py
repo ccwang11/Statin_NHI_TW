@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+import math
 import sys
 import tkinter as tk
 from tkinter import messagebox
@@ -66,6 +67,25 @@ RISK_LABELS = {
 
 OUTPUT_DIVIDER = "-" * 30
 BUTTON_HEIGHT = 34
+
+NUMERIC_LABELS = {
+    **{name: label for name, label, kind, _ in COMMON_FIELDS if kind == "number"},
+    "cac_score": "CAC", "waist_cm": "腹圍", "fasting_glucose": "空腹血糖",
+    "triglycerides": "空腹 TG", "hdl_c": "HDL-C",
+    "egfr_value_1": "eGFR 第1次數值", "egfr_value_2": "eGFR 第2次數值",
+    "uacr_value_1": "UACR 第1次數值", "uacr_value_2": "UACR 第2次數值",
+    "creatinine_latest": "最近 creatinine", "creatinine_past": "較早 creatinine",
+    "creatinine_month_gap": "creatinine 間隔月數",
+}
+
+
+def parse_nonnegative_number(raw: str) -> float | None:
+    if not raw.strip():
+        return None
+    value = float(raw)
+    if not math.isfinite(value) or value < 0:
+        raise ValueError("數值必須為有限且不小於零的數字")
+    return value
 
 
 def action_button_font() -> ctk.CTkFont:
@@ -735,7 +755,7 @@ class App(ctk.CTkFrame):
         if not raw:
             return None
         try:
-            return float(raw)
+            return parse_nonnegative_number(raw)
         except ValueError:
             return None
 
@@ -745,9 +765,27 @@ class App(ctk.CTkFrame):
             return None, None
         left, right = raw.split("/", 1)
         try:
-            return float(left.strip()), float(right.strip())
+            return parse_nonnegative_number(left), parse_nonnegative_number(right)
         except ValueError:
             return None, None
+
+    def _validate_numeric_inputs(self) -> None:
+        errors = []
+        for name, label in NUMERIC_LABELS.items():
+            try:
+                parse_nonnegative_number(self.field_vars[name].get())
+            except ValueError:
+                errors.append(label)
+        raw_bp = self.field_vars["bp_text"].get().strip()
+        if raw_bp:
+            try:
+                parts = raw_bp.split("/")
+                if len(parts) != 2 or any(parse_nonnegative_number(part) is None for part in parts):
+                    raise ValueError("血壓格式錯誤")
+            except ValueError:
+                errors.append("血壓（收縮壓/舒張壓）")
+        if errors:
+            raise ValueError("請修正以下欄位：" + "、".join(errors) + "。請輸入有限且不小於零的數字。")
 
     def _current_priority_level(self) -> str:
         coronary_condition = any(
@@ -1412,6 +1450,7 @@ class App(ctk.CTkFrame):
         )
 
     def build_patient_data(self) -> PatientData:
+        self._validate_numeric_inputs()
         kwargs: dict[str, object] = {"note_text": self.note_text.get("1.0", "end").strip()}
         for field_name, _label, field_type, _choices in COMMON_FIELDS:
             if field_type == "choice":
@@ -1479,7 +1518,13 @@ class App(ctk.CTkFrame):
         return PatientData(**kwargs)
 
     def evaluate_patient(self) -> None:
-        patient = self.build_patient_data()
+        try:
+            patient = self.build_patient_data()
+        except ValueError as error:
+            self.result_text.delete("1.0", "end")
+            self.result_text.insert("1.0", f"輸入資料錯誤，尚未判讀。\n{error}")
+            messagebox.showwarning("輸入資料錯誤", str(error))
+            return
         outcomes = evaluate_all(patient)
         lines: list[str] = []
         for outcome in outcomes:
@@ -1514,6 +1559,12 @@ class App(ctk.CTkFrame):
             conditions = "、".join(outcome.matched_conditions) or "無"
             conditions_suffix = f"（{conditions}）"
         lines = [f"ASCVD 風險等級：{RISK_LABELS[risk_category]}{conditions_suffix}"]
+        if outcome.status == "needs_review":
+            lines[0] += "（暫定分級，需人工複核）"
+        if outcome.missing_fields:
+            lines.append("待補資料：" + "、".join(outcome.missing_fields))
+        for note in outcome.follow_up_notes:
+            lines.append("判讀提醒：" + note)
 
         ldl_threshold = outcome.ldl_start_threshold
         ldl_is_eligible = ldl_threshold is not None and patient.ldl_c is not None and patient.ldl_c >= ldl_threshold

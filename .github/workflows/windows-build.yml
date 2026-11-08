@@ -48,6 +48,9 @@ jobs:
           Copy-Item CHANGELOG.md build/verification-dist/CHANGELOG.md
           Copy-Item LICENSE build/verification-dist/LICENSE
           Copy-Item THIRD_PARTY_NOTICES.md build/verification-dist/THIRD_PARTY_NOTICES.md
+          Copy-Item CONTRIBUTING.md build/verification-dist/CONTRIBUTING.md
+          Copy-Item SECURITY.md build/verification-dist/SECURITY.md
+          Copy-Item assets build/verification-dist/assets -Recurse
           Copy-Item docs build/verification-dist/docs -Recurse
           Copy-Item examples build/verification-dist/examples -Recurse
           New-Item -ItemType Directory -Path build/verification-dist/Ref -Force | Out-Null

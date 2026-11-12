@@ -4,7 +4,7 @@
 
 Windows 桌面工具，協助醫療人員整理資料、確認 ASCVD 風險分級與血脂目標，並顯示院內已設定且已達生效日的新制藥物清單。提供繁體中文介面，以 Python／CustomTkinter 開發。
 
-原始碼版本：**v1.2.4**；下載 EXE 的版本以 [Releases](https://github.com/ccwang11/Statin_NHI_TW/releases) 為準。本儲存庫為獨立專案，非健保署官方軟體，亦不代表任何醫院或機關的審核或背書。
+原始碼版本：**v1.2.5**；下載 EXE 的版本以 [Releases](https://github.com/ccwang11/Statin_NHI_TW/releases) 為準。本儲存庫為獨立專案，非健保署官方軟體，亦不代表任何醫院或機關的審核或背書。
 
 ## 下載與開始使用
 

@@ -315,7 +315,7 @@ class App(ctk.CTkFrame):
         scroll.grid_columnconfigure(0, weight=1)
 
         row_index = 0
-        common_frame = self._add_section(scroll, row_index, "基本資料", "性別、年齡、LDL-C、總膽固醇")
+        common_frame = self._add_section(scroll, row_index, "基本資料", "年齡、性別、LDL-C、總膽固醇")
         row_index += 1
         self._build_common_section(common_frame)
 
@@ -412,8 +412,8 @@ class App(ctk.CTkFrame):
             input_row.grid_columnconfigure(column, weight=1)
 
         fields = [
-            ("性別", "sex", "choice"),
             ("年齡", "age", "number"),
+            ("性別", "sex", "choice"),
             ("LDL-C", "ldl_c", "number"),
             ("總膽固醇", "total_cholesterol", "number"),
         ]
